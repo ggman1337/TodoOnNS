@@ -1,11 +1,65 @@
-@import 'tailwindcss';
-
 ActionBar {
-  background-color: #65adf1;
-  color: white;
+    background-color: #3f51b5;
+    color: white;
 }
 
 Page {
-  background: white;
-  color: black;
+    background: #f2f2f2;
+    color: black;
+}
+
+.empty {
+    font-size: 18;
+    opacity: 0.6;
+    padding: 24;
+}
+
+.item {
+    padding: 12;
+    border-bottom-width: 1;
+    border-bottom-color: #ddd;
+}
+
+.title {
+    font-size: 18;
+    font-weight: 600;
+}
+
+.desc {
+    opacity: 0.8;
+    margin-top: 6;
+}
+
+.btn {
+    margin-left: 8;
+}
+
+.add {
+    margin: 12;
+}
+
+.wrap {
+    padding: 16;
+}
+
+.primary {
+    margin-top: 12;
+}
+
+.danger {
+    margin-top: 12;
+}
+
+.task-filter {
+    background-color: #f2f2f2bb;
+}
+
+.task-filter SegmentedBarItem {
+    font-size: 14;
+    color: #444;
+}
+
+.task-filter SegmentedBarItem:selected {
+    color: white;
+    background-color: #5a1475d2;
 }

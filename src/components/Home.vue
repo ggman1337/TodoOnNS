@@ -1,64 +1,114 @@
 <script lang="ts" setup>
+import { computed, $navigateTo } from "nativescript-vue";
+import TaskFormPage from "./TaskFormPage.vue";
 import {
-  ref,
-  computed,
-  onMounted,
-  onUnmounted,
-  $navigateTo,
-} from 'nativescript-vue';
-import Details from './Details.vue';
+    filteredTasks,
+    tasksState,
+    setFilter,
+    toggleDone,
+} from "../store/tasks";
 
-const counter = ref(0);
-const message = computed(() => {
-  return `Blank {N}-Vue app: ${counter.value}`;
-});
+const selectedIndex = computed(() => (tasksState.filter === "active" ? 0 : 1));
 
-function logMessage() {
-  console.log('You have tapped the message!');
+function onFilterChange(args: any) {
+    const idx = args?.object?.selectedIndex ?? 0;
+    setFilter(idx === 0 ? "active" : "done");
 }
 
-let interval: any;
-onMounted(() => {
-  console.log('mounted');
-  interval = setInterval(() => counter.value++, 100);
-});
+function create() {
+    $navigateTo(TaskFormPage, { props: { mode: "create" } });
+}
 
-onUnmounted(() => {
-  console.log('unmounted');
-  clearInterval(interval);
-});
+function edit(id: string) {
+    $navigateTo(TaskFormPage, { props: { mode: "edit", id } });
+}
+
+function toggle(id: string) {
+    toggleDone(id);
+}
 </script>
 
 <template>
-  <Frame>
     <Page>
-      <ActionBar>
-        <Label text="Home" class="font-bold text-lg" />
-      </ActionBar>
+        <ActionBar title="Задачи" />
 
-      <GridLayout rows="*, auto, auto, *" class="px-4">
-        <Label
-          row="1"
-          class="text-xl align-middle text-center text-gray-500"
-          :text="message"
-          @tap="logMessage"
-        />
+        <GridLayout rows="auto, *">
+            <SegmentedBar
+                row="0"
+                class="task-filter"
+                selectedBackgroundColor="#5a1475d2"
+                selectedTextColor="white"
+                backgroundColor="#f2f2f2bb"
+                :selectedIndex="selectedIndex"
+                @selectedIndexChange="onFilterChange"
+            >
+                <SegmentedBarItem title="Текущие" />
+                <SegmentedBarItem title="Выполненные" />
+            </SegmentedBar>
 
-        <Button
-          row="2"
-          @tap="$navigateTo(Details)"
-          class="mt-4 px-4 py-2 bg-white border-2 border-blue-400 rounded-lg"
-          horizontalAlignment="center"
-        >
-          View Details
-        </Button>
-      </GridLayout>
+            <GridLayout row="1" rows="*, auto">
+                <Label
+                    v-if="filteredTasks.length === 0"
+                    text="Нет запланированных задач"
+                    class="empty"
+                    textWrap="true"
+                    verticalAlignment="middle"
+                    horizontalAlignment="center"
+                    row="0"
+                />
+
+                <ListView v-else :items="filteredTasks" row="0">
+                    <template #default="{ item }">
+                        <GridLayout
+                            columns="*, auto, auto"
+                            rows="auto, auto"
+                            class="item"
+                        >
+                            <Label
+                                :text="item.title"
+                                class="title"
+                                col="0"
+                                row="0"
+                                textWrap="true"
+                            />
+                            <Button
+                                text="Изменить"
+                                col="1"
+                                row="0"
+                                class="btn"
+                                @tap="edit(item.id)"
+                            />
+                            <Button
+                                :text="
+                                    item.status === 'active'
+                                        ? 'Готово'
+                                        : 'Переделать'
+                                "
+                                col="2"
+                                row="0"
+                                class="btn"
+                                @tap="toggle(item.id)"
+                            />
+                            <Label
+                                v-if="item.description"
+                                :text="item.description"
+                                col="0"
+                                row="1"
+                                colSpan="3"
+                                class="desc"
+                                textWrap="true"
+                            />
+                        </GridLayout>
+                    </template>
+                </ListView>
+
+                <Button
+                    row="1"
+                    text="Добавить задачу"
+                    class="add"
+                    @tap="create"
+                />
+            </GridLayout>
+        </GridLayout>
     </Page>
-  </Frame>
 </template>
-
-<style>
-/* .info {
-    font-size: 20;
-  } */
-</style>
